@@ -15,7 +15,7 @@ that loads next to the game.
 
 ## Download / install
 
-Get `DAVGVR_1.0.zip` from [Releases](../../releases). Copy `version.dll` and `openxr_loader.dll` into the game
+Get the latest `DAVGVR_*.zip` from [Releases](../../releases). Copy `version.dll` and `openxr_loader.dll` into the game
 folder (next to `Dragon Age The Veilguard.exe`), start the game, then your VR runtime.
 Use DLSS Swapper to swap in a DLSS 4.5 DLL, because the game's included 3.7 DLL makes the right eye jaggy.
 Full player notes are in [release/README.txt](release/README.txt). They cover:
@@ -29,6 +29,13 @@ generation for 90 fps in the headset. Foveated DLSS is on, starting at render sc
 
 **Caveat:** too high a render resolution (roughly above 4300 px of eye height) breaks the left eye and the stereo
 effect. If depth looks wrong, lower the render scale and restart the game.
+
+## Game updates
+
+The engine functions the mod hooks or calls (view building and the RenderView helpers) are found by wildcard byte
+signatures at start-up (`src/resolver.cpp`), not fixed addresses. Each signature must match exactly once. Results
+are cached per exe build (size and timestamp) in `DAVGVR\offsets.txt`. A failed signature disables only that
+feature and is logged. `tools/siggen*.py` regenerate signatures from an exe memory image.
 
 ## Building
 

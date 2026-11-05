@@ -1,5 +1,5 @@
-Dragon Age: The Veilguard VR (DAVGVR) - version 1.0 (2026-11-05)
-================================================================
+Dragon Age: The Veilguard VR (DAVGVR) - version 1.0.1 (2026-11-05)
+==================================================================
 Native stereo VR for Dragon Age: The Veilguard (Steam, D3D12) through OpenXR: two real engine views per frame
 (true 3D, not a flat screen), head tracking, the HUD on its own panel, an in-headset settings menu, and foveated
 DLSS for extra performance.
@@ -73,6 +73,12 @@ KNOWN ISSUES / CAVEATS
 - Eye-tracked foveation was only tested with a simulated gaze (no eye-tracking headset here).
 - It is a heavy game: two full views per frame. Use foveated DLSS, a DLSS performance mode and the render scale to
   find your balance.
+
+GAME UPDATES / OTHER STORES (1.0.1)
+The game functions the mod needs are found by byte signatures when the game starts (not fixed addresses), so a game
+patch or the EA app version should keep working without a mod update. The results are cached per game build in
+DAVGVR\offsets.txt. If a patch changes those functions too much, davgvr.log says "resolver: ... signature matched 0
+times" and VR falls back to head-tracked mono (or the view hooks stay off) instead of crashing - please send the log.
 
 LOGS / BUG REPORTS
 davgvr.log in the game folder (plus anything in the DAVGVR folder after a "Debug > Dump ..." menu action).

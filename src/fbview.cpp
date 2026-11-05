@@ -23,6 +23,7 @@
 #include "slhook.h"
 #include "globals.h"
 #include "log.h"
+#include "resolver.h"
 #include "../third_party/minhook/include/MinHook.h"
 
 namespace davg {
@@ -37,8 +38,14 @@ static float ViewportAspect(const uint8_t* cam) {
 }
 
 
-static const uintptr_t RVA_BUILDVIEWS = 0x29ABFE0;
-static const uintptr_t RVA_SETUPVIEW  = 0x298C400;
+// Game addresses: found by signature at start-up (resolver.cpp; cached per exe build in DAVGVR\offsets.txt) so a game
+// update or another store's exe does not need a new mod build. Steam build of 2026-10: buildViews exe+29ABFE0,
+// setupView exe+298C400, RenderView ctor exe+2A08AB0 / operator= exe+2A083B0, view registry global exe+6207E90,
+// view matrix update exe+2A2A8E0 with its argument table exe+4E22A98.
+static void* g_pBuild = nullptr; static void* g_pSetup = nullptr;
+static void* g_pRvDefault = nullptr; static void* g_pRvAssign = nullptr;
+static void** g_pRegistry = nullptr; static void* g_pViewUpdate = nullptr; static void* g_pViewUpdateArg = nullptr;
+static bool g_stereoOk = false;   // all stereo addresses found
 
 typedef void* (__fastcall* PFN_BuildViews)(void* out, void* table, void* r8);
 typedef void  (__fastcall* PFN_SetupView)(void* entry, uint16_t idx, void* r8, void* cam, void* prevXf, void* curXf);
@@ -285,9 +292,8 @@ static void __fastcall Hk_Setup(void* entry, uint16_t idx, void* r8, void* cam, 
 typedef void* (__fastcall* PFN_RvDefault)(void* tmp);            // exe+2A08AB0 RenderView::RenderView(tmp)
 typedef void  (__fastcall* PFN_RvAssign)(void* dst, const void* src); // exe+2A083B0 RenderView::operator=
 static void ConstructEntry(char* e, const char* e0) {
-    char* base = (char*)GetModuleHandleW(nullptr);
-    auto rvDefault = (PFN_RvDefault)(base + 0x2A08AB0);
-    auto rvAssign = (PFN_RvAssign)(base + 0x2A083B0);
+    auto rvDefault = (PFN_RvDefault)g_pRvDefault;
+    auto rvAssign = (PFN_RvAssign)g_pRvAssign;
     alignas(16) static thread_local uint8_t tmp[0x600];
     uint32_t keep = *(uint32_t*)(e + 0x2078);
     memset(e, 0, 0x2080);
@@ -321,7 +327,7 @@ static void* __fastcall Hk_Build(void* out, void* table, void* r8) {
             for (int i = 0; i < 3; i++) for (int j = 0; j < 3; j++) fp.rot[i * 3 + j] = a0[i * 4 + j]; }
     }
     bool appended = false;
-    if (t_right.valid && count == 1) {
+    if (t_right.valid && count == 1 && g_stereoOk) {
         appended = true;
         // Native stereo experiment: append the right eye as a second view (copy of the main entry, set up again).
         char* entries = *(char**)out;
@@ -332,17 +338,15 @@ static void* __fastcall Hk_Build(void* out, void* table, void* r8) {
         uint16_t idx1 = (uint16_t)(c_stereoIdx >= 0 ? c_stereoIdx : t_right.idx);
         o_Setup(e1, idx1, t_right.r8, t_right.cam, t_right.prev, t_right.cur);
         if (c_stereoRegister) {
-            char* base = (char*)GetModuleHandleW(nullptr);
-            void* obj = *(void**)(base + 0x6207E90);
+            void* obj = *g_pRegistry;
             void** vt = *(void***)obj;
             ((void(__fastcall*)(void*, void*))vt[0x98 / 8])(obj, e1);
             ((void(__fastcall*)(void*, void*))vt[0xa0 / 8])(obj, e1);
         }
         if (c_stereoForceUpdate) {   // recompute the right view's matrices from its transform/lens (dirty bits)
-            char* base = (char*)GetModuleHandleW(nullptr);
-            auto upd = (void(__fastcall*)(void*, const void*, uint32_t))(base + 0x2A2A8E0);
+            auto upd = (void(__fastcall*)(void*, const void*, uint32_t))g_pViewUpdate;
             *(uint32_t*)(e1 + 0x140) |= 0xF;
-            upd(e1, base + 0x4E22A98, 0xF);
+            upd(e1, g_pViewUpdateArg, 0xF);
         }
         if (table && c_stereoIdx > 0 && c_stereoIdx < 4) {   // per-view matrix table row, as the builder fills it
             memcpy((char*)table + idx1 * 0x110 + 0x00, e1 + 0x480, 0x40);
@@ -393,7 +397,7 @@ static void* __fastcall Hk_Build(void* out, void* table, void* r8) {
     if (!vtLogged && count > 0) {   // RE aid: the view registry object used by the builder (exe+6207E90)
         vtLogged = true;
         char* base = (char*)GetModuleHandleW(nullptr);
-        void* obj = *(void**)(base + 0x6207E90);
+        void* obj = g_pRegistry ? *g_pRegistry : nullptr;
         if (Readable(obj, 8)) {
             void** vt = *(void***)obj;
             if (Readable(vt, 0xC0))
@@ -586,17 +590,27 @@ void FbViewDumpTrigger() { g_dumpArmed = 1; g_jitLog = 6; }
 bool FbViewInstall() {
     FbViewApplyConfig();
     char* base = (char*)GetModuleHandleW(nullptr);
-    static const uint8_t pb[] = { 0x40, 0x55, 0x48, 0x8D, 0xAC, 0x24 };       // push rbp; lea rbp,[rsp-..]
-    static const uint8_t ps[] = { 0x48, 0x8B, 0xC4, 0x56, 0x57, 0x41, 0x57 }; // mov rax,rsp; push rsi; push rdi; push r15
-    if (memcmp(base + RVA_BUILDVIEWS, pb, sizeof(pb)) != 0 || memcmp(base + RVA_SETUPVIEW, ps, sizeof(ps)) != 0) {
-        LOGE("fbview: function prologues do not match this game build - view hooks disabled (game updated?)");
+    g_pBuild = ResolveSig("BuildViews", "40 55 48 8D AC 24 D0 E8 FF FF B8 30 18 00 00 E8 ?? ?? ?? ?? 48 2B E0 48 8B 05 ?? ?? ?? ?? 48 33 C4");
+    g_pSetup = ResolveSig("SetupView", "48 8B C4 56 57 41 57 48 81 EC F0 00 00 00 48 89 58 18 49 8B F1 4C 89 60 E0 4D 8B F8 4C 89 70 D8");
+    // inside buildViews: call RenderView::RenderView(tmp); mov rdx,rax; mov rcx,r14; call RenderView::operator=
+    const char* kCtor = "E8 ?? ?? ?? ?? 48 8B D0 49 8B CE E8 ?? ?? ?? ?? 49 8D BE 40 05 00 00";
+    g_pRvDefault = ResolveSig("RenderViewDefault", kCtor, 1, 'r');
+    g_pRvAssign = ResolveSig("RenderViewAssign", kCtor, 12, 'r');
+    g_pRegistry = (void**)ResolveSig("ViewRegistry", "48 8B 0D ?? ?? ?? ?? 49 8B D6 48 8B 01 FF 90 98 00 00 00", 3, 'r');
+    g_pViewUpdateArg = ResolveSig("ViewUpdateArg", "48 8D 15 ?? ?? ?? ?? 48 8B CB E8 ?? ?? ?? ?? F3 0F 10 96 50 10 00 00", 3, 'r');
+    g_pViewUpdate = ResolveSig("ViewUpdate", "48 8D 15 ?? ?? ?? ?? 48 8B CB E8 ?? ?? ?? ?? F3 0F 10 96 50 10 00 00", 11, 'r');
+    ResolverSaveCache();
+    if (!g_pBuild || !g_pSetup) {
+        LOGE("fbview: view functions not found in this game build - VR view hooks disabled (game updated? see DAVGVR\\offsets.txt)");
         return false;
     }
+    g_stereoOk = g_pRvDefault && g_pRvAssign && g_pRegistry && g_pViewUpdate && g_pViewUpdateArg;
+    if (!g_stereoOk) LOGE("fbview: stereo addresses missing in this game build - head tracking only, no second eye view");
     bool ok = true;
-    if (MH_CreateHook(base + RVA_BUILDVIEWS, (void*)Hk_Build, (void**)&o_Build) != MH_OK || MH_EnableHook(base + RVA_BUILDVIEWS) != MH_OK) ok = false;
-    if (MH_CreateHook(base + RVA_SETUPVIEW, (void*)Hk_Setup, (void**)&o_Setup) != MH_OK || MH_EnableHook(base + RVA_SETUPVIEW) != MH_OK) ok = false;
-    LOGI("fbview: hooks %s (buildViews exe+%llX, setupView exe+%llX)", ok ? "on" : "FAILED",
-         (unsigned long long)RVA_BUILDVIEWS, (unsigned long long)RVA_SETUPVIEW);
+    if (MH_CreateHook(g_pBuild, (void*)Hk_Build, (void**)&o_Build) != MH_OK || MH_EnableHook(g_pBuild) != MH_OK) ok = false;
+    if (MH_CreateHook(g_pSetup, (void*)Hk_Setup, (void**)&o_Setup) != MH_OK || MH_EnableHook(g_pSetup) != MH_OK) ok = false;
+    LOGI("fbview: hooks %s (buildViews exe+%llX, setupView exe+%llX), stereo %s", ok ? "on" : "FAILED",
+         (unsigned long long)((char*)g_pBuild - base), (unsigned long long)((char*)g_pSetup - base), g_stereoOk ? "ready" : "UNAVAILABLE");
     return ok;
 }
 
