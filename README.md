@@ -17,10 +17,11 @@ that loads next to the game.
 
 Get `DAVGVR_1.0.zip` from [Releases](../../releases). Copy `version.dll` and `openxr_loader.dll` into the game
 folder (next to `Dragon Age The Veilguard.exe`), start the game, then your VR runtime.
+Use DLSS Swapper to swap in a DLSS 4.5 DLL, because the game's included 3.7 DLL makes the right eye jaggy.
 Full player notes are in [release/README.txt](release/README.txt). They cover:
-- requirements: DLSS / FSR / XeSS upscaling, frame generation off, DLSS DLL 310+
+- requirements: DLSS / FSR / XeSS upscaling, frame generation off
 - controls
-- the menu
+- the menu and default settings (Foveated DLSS is off by default; turning it on is recommended)
 - known issues
 
 **Caveat:** too high a render resolution (roughly above 4300 px of eye height) breaks the left eye and the stereo

@@ -9,8 +9,8 @@ REQUIREMENTS
 - In the game's graphics settings:
     Upscaling: DLSS (recommended). FSR / XeSS also give stereo; "no upscaler" (native) does NOT give stereo.
     Frame generation: OFF.   Display mode: windowed or borderless (the mod resizes the window to the VR size).
-- DLSS DLL 310 or newer (e.g. 310.6) in the game folder. The game's own 3.7 DLL makes the right eye jaggy -
-  swap it with DLSS Swapper (or copy nvngx_dlss.dll 310.x into the game folder). The log shows the version.
+- Use DLSS Swapper to swap in a DLSS 4.5 DLL, because the game's included 3.7 DLL makes the right eye jaggy.
+  (davgvr.log shows the DLSS version in use.)
 
 INSTALL
 1. Copy version.dll and openxr_loader.dll into the game folder:
@@ -37,6 +37,22 @@ MENU HIGHLIGHTS
 - HUD: panel size / distance / height, world- or head-anchored. Cutscene letterbox bars are removed from the panel.
 - Frame pacing "Game" (default) lets SteamVR reprojection / motion smoothing work at the game's real frame rate;
   Frame limit (refresh / N) gives a steady cadence for frame generation tools.
+
+DEFAULT SETTINGS (what you get without changing anything; all are in the menu and in config.txt)
+  View      Mode: Stereo (3D)                 World scale: 1.00 (life size)
+            Level camera: on                  Pose latency: 1 frame          Swap eyes: off
+  HUD       HUD on its own panel: on          Panel: 1.40 m wide, 1.50 m away, 0.05 m below eye level, world-anchored
+  Display   Render resolution: auto (headset's per-eye size)                 Render scale: 1.00
+            Frame pacing: Game (real fps)     Frame limit: off               Per-eye DLSS: on
+            Sharpen (LumaSharpen): 0 (off)
+  Foveated  Foveated DLSS: OFF (recommended ON)                              Centre follows: image centre
+            Centre width / height: 0.60 / 0.60                               Periphery smoothing (TAA): on
+            Periphery DLSS (2nd pass): off    Show centre border: off
+            VRS foveated rendering: off       VRS full-detail size 0.60, 2x2 size 2.00, 4x4 outside: off
+  Menu      1.00 m away, 0.80 m wide, world-anchored; open with L3 + R3 held 0.3 s or Insert
+  Flat mode Virtual screen 3.2 m wide, 2.5 m away
+Suggested start: turn Foveated DLSS on, keep render scale 1.0, then raise the render scale while the frame rate
+holds (stay at or below ~1.25 - see known issues).
 
 KNOWN ISSUES / CAVEATS
 - TOO HIGH A RENDER RESOLUTION CAN BREAK THE STEREO EFFECT. Above roughly 4300 pixels of height per eye (e.g. render
