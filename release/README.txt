@@ -15,9 +15,8 @@ REQUIREMENTS
 INSTALL
 1. Copy version.dll and openxr_loader.dll into the game folder:
    ...\steamapps\common\Dragon Age The Veilguard  (next to "Dragon Age The Veilguard.exe")
-   (version.pdb is optional - it only makes crash reports more useful.)
 2. Start the game, then start your VR runtime / put the headset on. config.txt is created on the first run.
-Uninstall: delete version.dll, openxr_loader.dll (and version.pdb, config.txt, davgvr.log, the DAVGVR folder).
+Uninstall: delete version.dll, openxr_loader.dll (and config.txt, davgvr.log, the DAVGVR folder).
 
 CONTROLS
 - Settings menu: hold L3 + R3 (both stick clicks) on the gamepad, or press Insert. D-pad / arrows to move,
