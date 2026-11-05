@@ -1,0 +1,5 @@
+build_dist*/
+dist*/
+*.obj
+*.pdb
+__pycache__/
