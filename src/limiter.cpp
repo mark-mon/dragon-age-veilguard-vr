@@ -17,7 +17,7 @@ static int64_t g_next = 0;          // QPC of the next allowed Present
 static int64_t g_freq = 0;
 
 void LimiterApplyConfig() {
-    int d = G().cfg.GetInt("game_fps_divider", 0);
+    int d = G().cfg.GetInt("game_fps_divider", 2);
     if (d < 0) d = 0; if (d > 6) d = 6;
     if (c_divider.exchange(d) != d) { g_next = 0; LOGI("limiter: game_fps_divider %d%s", d, d ? "" : " (off)"); }
 }

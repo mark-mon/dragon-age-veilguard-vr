@@ -21,8 +21,11 @@ Use DLSS Swapper to swap in a DLSS 4.5 DLL, because the game's included 3.7 DLL 
 Full player notes are in [release/README.txt](release/README.txt). They cover:
 - requirements: DLSS / FSR / XeSS upscaling, frame generation off
 - controls
-- the menu and default settings (Foveated DLSS is off by default; turning it on is recommended)
+- the menu and default settings
 - known issues
+
+**Recommended setup (the defaults):** frame limit 2, i.e. a steady 45 fps at 90 Hz, plus OFXR-Bridge 2x frame
+generation for 90 fps in the headset. Foveated DLSS is on, starting at render scale 1.0.
 
 **Caveat:** too high a render resolution (roughly above 4300 px of eye height) breaks the left eye and the stereo
 effect. If depth looks wrong, lower the render scale and restart the game.

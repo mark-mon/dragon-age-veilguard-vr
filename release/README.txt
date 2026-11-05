@@ -29,30 +29,40 @@ MENU HIGHLIGHTS
   Applied at the next game start (the window size is set once per launch).
 - Display > Per-eye DLSS: keep ON (otherwise both eyes share a DLSS history = ghosting).
 - Display > Sharpen (LumaSharpen) 0 - 5.
-- Foveated DLSS > Foveated DLSS (upscaling) - OFF by default, recommended ON: DLSS reconstructs only the centre of
+- Foveated DLSS > Foveated DLSS (upscaling) - ON by default: DLSS reconstructs only the centre of
   each eye (centre width / height, default 0.6), the periphery gets a cheap upscale + temporal smoothing. Big GPU saving, hard to notice in the headset.
   "Centre follows: Eye tracking" uses OpenXR eye tracking (XR_EXT_eye_gaze_interaction) on headsets that offer it.
   "Show centre border" draws the centre region in red.
 - Foveated DLSS > VRS foveated rendering: experimental, small gain (coarser shading toward the edges).
 - HUD: panel size / distance / height, world- or head-anchored. Cutscene letterbox bars are removed from the panel.
 - Frame pacing "Game" (default) lets SteamVR reprojection / motion smoothing work at the game's real frame rate;
-  Frame limit (refresh / N) gives a steady cadence for frame generation tools.
+  Frame limit (refresh / N, default 2) gives a steady cadence for frame generation tools.
 
 DEFAULT SETTINGS (what you get without changing anything; all are in the menu and in config.txt)
   View      Mode: Stereo (3D)                 World scale: 1.00 (life size)
             Level camera: on                  Pose latency: 1 frame          Swap eyes: off
   HUD       HUD on its own panel: on          Panel: 1.40 m wide, 1.50 m away, 0.05 m below eye level, world-anchored
   Display   Render resolution: auto (headset's per-eye size)                 Render scale: 1.00
-            Frame pacing: Game (real fps)     Frame limit: off               Per-eye DLSS: on
+            Frame pacing: Game (real fps)     Frame limit: 2 (= 45 fps @ 90 Hz)   Per-eye DLSS: on
             Sharpen (LumaSharpen): 0 (off)
-  Foveated  Foveated DLSS: OFF (recommended ON)                              Centre follows: image centre
+  Foveated  Foveated DLSS: ON                                                Centre follows: image centre
             Centre width / height: 0.60 / 0.60                               Periphery smoothing (TAA): on
             Periphery DLSS (2nd pass): off    Show centre border: off
             VRS foveated rendering: off       VRS full-detail size 0.60, 2x2 size 2.00, 4x4 outside: off
   Menu      1.00 m away, 0.80 m wide, world-anchored; open with L3 + R3 held 0.3 s or Insert
   Flat mode Virtual screen 3.2 m wide, 2.5 m away
-Suggested start: turn Foveated DLSS on, keep render scale 1.0, then raise the render scale while the frame rate
-holds (stay at or below ~1.25 - see known issues).
+  (Upgrading from a test build? Delete config.txt once to get these defaults - an existing file is kept.)
+
+RECOMMENDED SETUP: N/2 + OFXR-BRIDGE (the defaults are set up for this)
+This game is far too heavy for a native 90 fps in VR (two full views per frame). What plays well:
+- Frame limit 2: the game runs at exactly half the headset refresh (45 fps at 90 Hz) with a steady cadence.
+  On a 5090 this gave 45 fps at ~70 % GPU, versus 36 fps at 98 % GPU unlimited (the unlimited game and the VR
+  compositor fight over the GPU).
+- OFXR-Bridge frame generation 2x on top -> 90 fps in the headset. (Without it, SteamVR Motion Smoothing / Oculus
+  ASW can fill the gaps instead - Frame pacing must stay on "Game" for either.)
+- Foveated DLSS on, render scale 1.0 to start; then raise the render scale while GPU use stays below ~85 % at
+  45 fps (missed frames show more with frame generation). Stay at or below ~1.25 - see known issues.
+- Changing the Frame limit while playing once crashed the game - set it before loading a save.
 
 KNOWN ISSUES / CAVEATS
 - TOO HIGH A RENDER RESOLUTION CAN BREAK THE STEREO EFFECT. Above roughly 4300 pixels of height per eye (e.g. render

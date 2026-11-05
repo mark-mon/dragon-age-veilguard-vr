@@ -113,8 +113,10 @@ static const char* kDefaultConfig =
 "# reprojection / motion smoothing can work) | headset = submit every headset frame (re-sends the last frame)\n"
 "xr_pacing = game\n"
 "# game_fps_divider: 0 = off | N = hold the game to exactly headset refresh / N (90 Hz: 2 -> 45 fps, 3 -> 30 fps),\n"
-"# a steady cadence for frame generation (OFXR-Bridge 2x / 3x, SteamVR motion smoothing)\n"
-"game_fps_divider = 0\n"
+"# a steady cadence for frame generation (OFXR-Bridge 2x / 3x, SteamVR motion smoothing). Default 2 (+ OFXR-Bridge 2x).\n"
+"game_fps_divider = 2\n"
+"# fov_dlss: foveated DLSS - DLSS only reconstructs the centre of each eye (big GPU saving). Default on.\n"
+"fov_dlss = 1\n"
 "# dred = 1: D3D12 device-removed diagnostics (breadcrumbs, page faults) for debugging GPU crashes. Off by default.\n"
 "dred = 0\n"
 ;

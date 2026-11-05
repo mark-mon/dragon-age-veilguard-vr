@@ -556,7 +556,7 @@ void FbViewApplyConfig() {
     ReplaySetSnapshot(G().cfg.GetInt("stereo_replay_snapshot", 2));
     const bool perEye = G().cfg.GetBool("stereo_dlss_per_eye", true);
     SlHookEnable(c_mode.load() == (int)Mode::Stereo && perEye);
-    { fovdlss::Config fc; fc.enabled = G().cfg.GetBool("fov_dlss", false);
+    { fovdlss::Config fc; fc.enabled = G().cfg.GetBool("fov_dlss", true);
       fc.width = G().cfg.GetFloat("fov_dlss_width", 0.6f); fc.height = G().cfg.GetFloat("fov_dlss_height", 0.6f);
       fc.periphDlss = G().cfg.GetBool("fov_dlss_periphery", false);
       auto preset = [](const std::string& v) -> unsigned { if (v.size() == 1 && v[0] >= 'A' && v[0] <= 'Z') return (unsigned)(v[0] - 'A' + 1); if (v.size() == 1 && v[0] >= 'a' && v[0] <= 'z') return (unsigned)(v[0] - 'a' + 1); return 0u; };

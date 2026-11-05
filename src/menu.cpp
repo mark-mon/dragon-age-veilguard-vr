@@ -84,7 +84,7 @@ bool MenuInit(ID3D11Device* dev, ID3D11DeviceContext* ctx) {
     M.perEye = c.GetBool("stereo_dlss_per_eye", true);
     M.tagRouting = c.GetStr("stereo_dlss_tag_routing", "order");
     M.sharpen = c.GetFloat("lumasharpen", 0.0f);
-    M.fov = c.GetBool("fov_dlss", false); M.fovPeriph = c.GetBool("fov_dlss_periphery", false); M.fovTaa = c.GetBool("fov_dlss_periphery_taa", true); M.fovBorder = c.GetBool("fov_dlss_border", false);
+    M.fov = c.GetBool("fov_dlss", true); M.fovPeriph = c.GetBool("fov_dlss_periphery", false); M.fovTaa = c.GetBool("fov_dlss_periphery_taa", true); M.fovBorder = c.GetBool("fov_dlss_border", false);
     M.fovGaze = c.GetStr("fov_dlss_gaze", "off"); M.vrsOn = c.GetBool("fov_vrs", false); M.vrs4 = c.GetBool("fov_vrs_outer_4x4", false); M.vrsIn = c.GetFloat("fov_vrs_inner", 0.6f); M.vrsMid = c.GetFloat("fov_vrs_mid", 2.0f); M.fovW = c.GetFloat("fov_dlss_width", 0.6f); M.fovH = c.GetFloat("fov_dlss_height", 0.6f);
     M.rightJitter = c.GetStr("stereo_dlss_right_jitter", "game");
     M.history = c.GetBool("stereo_replay_history", true);
@@ -101,7 +101,7 @@ bool MenuInit(ID3D11Device* dev, ID3D11DeviceContext* ctx) {
     M.menuAnchor = c.GetStr("menu_anchor", "world");
     M.pacing = c.GetStr("xr_pacing", "game");
     M.swapEyes = c.GetBool("swap_eyes", false);
-    M.divider = c.GetInt("game_fps_divider", 0);
+    M.divider = c.GetInt("game_fps_divider", 2);
     ApplyPlacement();
 
     auto& o = vrkit::Options::Get();
