@@ -117,6 +117,8 @@ static const char* kDefaultConfig =
 "game_fps_divider = 2\n"
 "# fov_dlss: foveated DLSS - DLSS only reconstructs the centre of each eye (big GPU saving). Default on.\n"
 "fov_dlss = 1\n"
+"# crash_guard_emitter: skip an empty effect resource slot instead of crashing (game bug seen in VR). Default on.\n"
+"crash_guard_emitter = true\n"
 "# dred = 1: D3D12 device-removed diagnostics (breadcrumbs, page faults) for debugging GPU crashes. Off by default.\n"
 "dred = 0\n"
 ;

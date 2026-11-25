@@ -24,6 +24,7 @@
 #include "globals.h"
 #include "log.h"
 #include "resolver.h"
+#include "gameguards.h"
 #include "../third_party/minhook/include/MinHook.h"
 
 namespace davg {
@@ -541,6 +542,7 @@ bool FbViewStereoPosesForCam(const float cam[6], XrHostEye eyes[2]) {
 }
 
 void FbViewApplyConfig() {
+    GameGuardsApplyConfig();
     std::string m = G().cfg.GetStr("vr_mode", "stereo");
     c_mode = m == "flat" ? (int)Mode::Flat : m == "stereo" ? (int)Mode::Stereo : (int)Mode::Head;
     c_level = G().cfg.GetBool("level_camera", true);

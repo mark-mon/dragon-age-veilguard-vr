@@ -31,7 +31,7 @@ struct MenuCfg {
     bool perEye = true;
     std::string tagRouting = "order";
     float sharpen = 0.0f;
-    bool fov = false, fovPeriph = false, fovTaa = true, fovBorder = false; float fovW = 0.6f, fovH = 0.6f; std::string fovGaze = "off"; bool vrsOn = false, vrs4 = false; float vrsIn = 0.6f, vrsMid = 2.0f;
+    bool crashGuard = true; bool fov = false, fovPeriph = false, fovTaa = true, fovBorder = false; float fovW = 0.6f, fovH = 0.6f; std::string fovGaze = "off"; bool vrsOn = false, vrs4 = false; float vrsIn = 0.6f, vrsMid = 2.0f;
     std::string rightJitter = "game";
     bool history = true;
     bool sceneHistory = true;
@@ -84,6 +84,7 @@ bool MenuInit(ID3D11Device* dev, ID3D11DeviceContext* ctx) {
     M.perEye = c.GetBool("stereo_dlss_per_eye", true);
     M.tagRouting = c.GetStr("stereo_dlss_tag_routing", "order");
     M.sharpen = c.GetFloat("lumasharpen", 0.0f);
+    M.crashGuard = c.GetBool("crash_guard_emitter", true);
     M.fov = c.GetBool("fov_dlss", true); M.fovPeriph = c.GetBool("fov_dlss_periphery", false); M.fovTaa = c.GetBool("fov_dlss_periphery_taa", true); M.fovBorder = c.GetBool("fov_dlss_border", false);
     M.fovGaze = c.GetStr("fov_dlss_gaze", "off"); M.vrsOn = c.GetBool("fov_vrs", false); M.vrs4 = c.GetBool("fov_vrs_outer_4x4", false); M.vrsIn = c.GetFloat("fov_vrs_inner", 0.6f); M.vrsMid = c.GetFloat("fov_vrs_mid", 2.0f); M.fovW = c.GetFloat("fov_dlss_width", 0.6f); M.fovH = c.GetFloat("fov_dlss_height", 0.6f);
     M.rightJitter = c.GetStr("stereo_dlss_right_jitter", "game");
@@ -162,6 +163,9 @@ bool MenuInit(ID3D11Device* dev, ID3D11DeviceContext* ctx) {
     // (2026-11-04) removed from the menu: right-eye DLSS jitter / input routing tests, per-eye post / scene history -
     // the jaggy right eye was an old DLSS DLL (3.7) in the game folder; none of these changed it (user).
     // Debug
+    o.AddBool("Debug", "crash_guard_emitter", "Effects crash guard", &M.crashGuard,
+              "Skips an empty effect resource slot instead of crashing (game bug seen in VR,\n" 
+              "effects system). Logged as 'guard:' in davgvr.log. Default on.", apply);
     o.AddAction("Debug", "Dump headset image", [] { XrHostRequestDump(); }, "DAVGVR\\screen_NNN.bmp (+ hud_NNN.bmp).");
     o.AddAction("Debug", "Dump DLSS outputs", [] { ReplayDlssDump(); }, "Both eyes' DLSS images: DAVGVR\\dlss_*.bmp (send them with the log).");
     o.AddAction("Debug", "HUD probe", [] { ReplayHudProbe(); }, "Reads back the UI targets before the composite: DAVGVR\\rt8_*.bmp.");

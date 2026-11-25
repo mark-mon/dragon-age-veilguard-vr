@@ -1,4 +1,4 @@
-Dragon Age: The Veilguard VR (DAVGVR) - version 1.0.1 (2026-11-05)
+Dragon Age: The Veilguard VR (DAVGVR) - version 1.0.2 (2026-11-24)
 ==================================================================
 Native stereo VR for Dragon Age: The Veilguard (Steam, D3D12) through OpenXR: two real engine views per frame
 (true 3D, not a flat screen), head tracking, the HUD on its own panel, an in-headset settings menu, and foveated
@@ -50,6 +50,7 @@ DEFAULT SETTINGS (what you get without changing anything; all are in the menu an
             VRS foveated rendering: off       VRS full-detail size 0.60, 2x2 size 2.00, 4x4 outside: off
   Menu      1.00 m away, 0.80 m wide, world-anchored; open with L3 + R3 held 0.3 s or Insert
   Flat mode Virtual screen 3.2 m wide, 2.5 m away
+  Debug     Effects crash guard: on
   (Upgrading from a test build? Delete config.txt once to get these defaults - an existing file is kept.)
 
 RECOMMENDED SETUP: N/2 + OFXR-BRIDGE (the defaults are set up for this)
@@ -73,6 +74,11 @@ KNOWN ISSUES / CAVEATS
 - Eye-tracked foveation was only tested with a simulated gaze (no eye-tracking headset here).
 - It is a heavy game: two full views per frame. Use foveated DLSS, a DLSS performance mode and the render scale to
   find your balance.
+
+CRASH GUARD (1.0.2)
+Debug > "Effects crash guard" (default on): the game's effects system can hand an empty resource slot to one of its
+own functions and crash to desktop (seen twice in VR, a few minutes into play). The guard skips that slot instead -
+at worst one effect draws with stale data for a frame. davgvr.log shows "guard: ... skipped" when it has stepped in.
 
 GAME UPDATES / OTHER STORES (1.0.1)
 The game functions the mod needs are found by byte signatures when the game starts (not fixed addresses), so a game

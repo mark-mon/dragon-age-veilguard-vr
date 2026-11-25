@@ -15,6 +15,7 @@
 #include "slhook.h"
 #include "fovdlss.h"
 #include "vrs.h"
+#include "gameguards.h"
 #include "replay.h"
 #include "log.h"
 #include "../third_party/minhook/include/MinHook.h"
@@ -377,6 +378,7 @@ uint64_t SlHookRemapped() { return s_remapped.load(); }
 void SlHookReport() {
     fovdlss::Report();
     vrs::Report();
+    davg::GameGuardsReport();
     LOGI("sl: right eye on viewport 1: %llu tags, %llu constants, %llu evaluates (since start)", (unsigned long long)s_remapped.load(),
          (unsigned long long)s_constRemapped.load(), (unsigned long long)s_evalRemapped.load());
     LOGI("sl: DLSS tag groups %llu, SPLIT between the eyes' viewports %llu, evaluated on the other eye than they were tagged for %llu | depth texture changed eye %llu (10 s)",

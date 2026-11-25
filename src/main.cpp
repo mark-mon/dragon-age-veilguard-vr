@@ -5,6 +5,7 @@
 #include "globals.h"
 #include "proxy.h"
 #include "log.h"
+#include "gameguards.h"
 #include "crash.h"
 #include "fovdlss.h"
 #include "modwatch.h"
@@ -43,6 +44,7 @@ static DWORD WINAPI InitThread(void*) {
     // game's device never shows up (mod loaded late)
     if (G().cfg.GetBool("hook_dx12", true) && !(waitDev && Dx12WaitGameDevice(120000))) { LOGW("dx12 hooks: no game device seen - dummy-device install"); InstallDx12Hooks(); }
     if (G().cfg.GetBool("fb_view_hooks", true)) FbViewInstall();
+    GameGuardsInstall();
     TriggersStart();
     return 0;
 }
